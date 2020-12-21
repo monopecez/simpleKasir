@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +29,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     static HashMap<String, Integer> subTotal = new HashMap<String, Integer>();
+    static ArrayList<Integer> subTotalIdList = new ArrayList<Integer>();
     static int priceIdx = 0;
     LinearLayout mainLayer;
 
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         int nButton = data.length();
 
         final ArrayList<String> list = new ArrayList<String>();
+
         try {
             for (int i=0; i< nButton; i++){
                 list.add(data.getJSONArray(i).getString(0));
@@ -59,25 +62,23 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < nButton; i++) {
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-
             LinearLayout layout = new LinearLayout(getApplicationContext());
-            LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+
+            ConstraintLayout clayout = new ConstraintLayout(getApplicationContext());
+            clayout.setId(View.generateViewId());
+            ConstraintSet bigSet = new ConstraintSet();
+
+
+            LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//            ConstraintLayout.LayoutParams cParams = new ConstraintLayout.LayoutParams(0, 0);
 
             layout.setOrientation(LinearLayout.HORIZONTAL);
             layout.setLayoutParams(params);
+            TextView menuNameTV = new TextView(getApplicationContext());
             Button buttonKurang = new Button(getApplicationContext());
             Button buttonTambah = new Button(getApplicationContext());
-            TextView menuNameTV = new TextView(getApplicationContext());
-            final TextView qtyTV = new TextView(getApplicationContext());
             final TextView subTotalTV = new TextView(getApplicationContext());
 
-            buttonKurang.setText("-");
-            buttonTambah.setText("+");
-            qtyTV.setText("0 -- ");
-            subTotalTV.setText("0");
-
-            buttonKurang.setLayoutParams(params1);
-            buttonTambah.setLayoutParams(params1);
 
             try {
                 JSONArray innerData = data.getJSONArray(i);
@@ -97,13 +98,53 @@ public class MainActivity extends AppCompatActivity {
                 subTotal.put(menuTitle, 0);
             }
 
+            //menuNameTV has been declared above
+            buttonKurang.setText("-");
+            buttonTambah.setText("+");
+            subTotalTV.setText("0");
+
+            buttonKurang.setLayoutParams(params1);
+            buttonTambah.setLayoutParams(params1);
+            int subTotalViewId = View.generateViewId();
+            subTotalIdList.add(subTotalViewId);
+
+            /*
             layout.addView(menuNameTV);
             layout.addView(buttonKurang);
             layout.addView(buttonTambah);
-            layout.addView(qtyTV);
-
-            subTotalTV.setId(i);
             layout.addView(subTotalTV);
+            subTotalTV.setId(subTotalViewId);
+            */
+
+            menuNameTV.setId(View.generateViewId());
+            buttonKurang.setId(View.generateViewId());
+            buttonTambah.setId(View.generateViewId());
+            subTotalTV.setId(subTotalViewId);
+
+            clayout.addView(menuNameTV);
+            clayout.addView(buttonKurang);
+            clayout.addView(buttonTambah);
+            clayout.addView(subTotalTV);
+//            clayout.setLayoutParams(cParams);
+
+            bigSet.clone(clayout);
+            /*
+            bigSet.connect(menuNameTV.getId(), bigSet.START, bigSet.PARENT_ID, bigSet.START, 50);
+            bigSet.connect(menuNameTV.getId(), bigSet.END, buttonKurang.getId(), bigSet.START, 50);
+            bigSet.connect(buttonKurang.getId(), bigSet.END, buttonTambah.getId(), bigSet.START, 50);
+            bigSet.connect(buttonTambah.getId(), bigSet.END, subTotalTV.getId(), bigSet.START, 50);
+            bigSet.connect(subTotalTV.getId(), bigSet.END, bigSet.PARENT_ID, bigSet.END, 50);
+            */
+            bigSet.constrainDefaultWidth(clayout.getId(), bigSet.MATCH_CONSTRAINT_SPREAD);
+            bigSet.constrainDefaultHeight(clayout.getId(), bigSet.MATCH_CONSTRAINT_SPREAD);
+            bigSet.connect(menuNameTV.getId(), bigSet.START, bigSet.PARENT_ID, bigSet.START, 50);
+            bigSet.connect(buttonKurang.getId(), bigSet.START, menuNameTV.getId(), bigSet.END, 50);
+            bigSet.connect(buttonTambah.getId(), bigSet.START, buttonKurang.getId(), bigSet.END, 50);
+            bigSet.connect(subTotalTV.getId(), bigSet.START, buttonTambah.getId(), bigSet.END, 50);
+            bigSet.connect(subTotalTV.getId(), bigSet.END, bigSet.PARENT_ID, bigSet.END, 50);
+
+            bigSet.applyTo(clayout);
+            layout.addView(clayout);
 
             final int idx = i;
 
@@ -117,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
                         currentN = currentN - 1 ;
                     }
                     qty.put(item, currentN);
-                    qtyTV.setText(Integer.toString(currentN) + " -- ");
                     System.out.println("DEBUG KURANG:" + item);
                     refreshSubTotal(list, qty, harga);
                 }
@@ -131,7 +171,6 @@ public class MainActivity extends AppCompatActivity {
                     int currentN = qty.get(item);
                     currentN = currentN + 1 ;
                     qty.put(item, currentN);
-                    qtyTV.setText(Integer.toString(currentN) + " -- ");
                     System.out.println("DEBUG TAMBAH:" + item);
                     refreshSubTotal(list, qty, harga);
                 }
@@ -141,52 +180,56 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
+        //hidden header
+        if (true) {
 
-        EditText gojekpemesan = (EditText) findViewById(R.id.gojekpemesan);
-        EditText gojekpin = (EditText) findViewById(R.id.gojekpin);
-        EditText gojekantrian = (EditText) findViewById(R.id.gojekantrian);
+            EditText gojekpemesan = (EditText) findViewById(R.id.gojekpemesan);
+            EditText gojekpin = (EditText) findViewById(R.id.gojekpin);
+            EditText gojekantrian = (EditText) findViewById(R.id.gojekantrian);
 
-        final ConstraintLayout gojekDetail = (ConstraintLayout) findViewById(R.id.gojekDetail);
-        final Switch gojekSwitch = (Switch) findViewById(R.id.gojekswitch);
-        final Switch grabSwitch = (Switch) findViewById(R.id.grabswitch);
+            final ConstraintLayout gojekDetail = (ConstraintLayout) findViewById(R.id.gojekDetail);
+            final Switch gojekSwitch = (Switch) findViewById(R.id.gojekswitch);
+            final Switch grabSwitch = (Switch) findViewById(R.id.grabswitch);
 
-        gojekSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
-                    grabSwitch.setChecked(false);
-                    gojekDetail.setVisibility(ConstraintLayout.VISIBLE);
-                    priceIdx = 1;
-                    refreshSubTotal(list, qty, harga);
-                } else {
-                    gojekDetail.setVisibility(ConstraintLayout.GONE);
-                    priceIdx = 0;
-                    refreshSubTotal(list, qty, harga);
+            gojekSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        grabSwitch.setChecked(false);
+                        gojekDetail.setVisibility(ConstraintLayout.VISIBLE);
+                        priceIdx = 1;
+                        refreshSubTotal(list, qty, harga);
+                    } else {
+                        gojekDetail.setVisibility(ConstraintLayout.GONE);
+                        priceIdx = 0;
+                        refreshSubTotal(list, qty, harga);
+                    }
                 }
-            }});
+            });
 
-        grabSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
-                    gojekSwitch.setChecked(false);
-                    gojekDetail.setVisibility(ConstraintLayout.VISIBLE);
-                    priceIdx = 2;
-                    refreshSubTotal(list, qty, harga);
-                } else {
-                    gojekDetail.setVisibility(ConstraintLayout.GONE);
-                    priceIdx = 0;
-                    refreshSubTotal(list, qty, harga);
+            grabSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        gojekSwitch.setChecked(false);
+                        gojekDetail.setVisibility(ConstraintLayout.VISIBLE);
+                        priceIdx = 2;
+                        refreshSubTotal(list, qty, harga);
+                    } else {
+                        gojekDetail.setVisibility(ConstraintLayout.GONE);
+                        priceIdx = 0;
+                        refreshSubTotal(list, qty, harga);
+                    }
                 }
-            }});
-
+            });
+        }
     }
 
 
         public void refreshSubTotal(ArrayList<String> menu, HashMap<String, Integer> qty, HashMap<String, JSONArray> harga){
             for (int i = 0; i < menu.size(); i++){
                 String currentMenu = menu.get(i);
-                TextView subTotalTV = findViewById(i);
+                TextView subTotalTV = findViewById(subTotalIdList.get(i));
                 try {
                     int hargaTemp = harga.get(currentMenu).getInt(priceIdx) * qty.get(currentMenu);
                     subTotalTV.setText(Integer.toString(hargaTemp));
