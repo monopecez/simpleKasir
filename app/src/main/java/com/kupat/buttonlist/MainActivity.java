@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
             buttonKurang.setText("-");
             buttonTambah.setText("+");
-            qtyTV.setText("0 --  ++");
+            qtyTV.setText("0 -- ");
             subTotalTV.setText("0");
 
             buttonKurang.setLayoutParams(params1);

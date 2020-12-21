@@ -166,18 +166,17 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/gojekDetail">
+        app:layout_constraintTop_toBottomOf="@id/gojekDetail"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/mainLayer"
-            android:gravity="center"
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".MainActivity">
-        </LinearLayout>
+            android:gravity="center"
+            android:orientation="vertical"
+            tools:context=".MainActivity"></LinearLayout>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
