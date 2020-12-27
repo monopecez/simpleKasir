@@ -1,5 +1,6 @@
 package com.kupat.buttonlist;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mainLayer = (LinearLayout) findViewById(R.id.mainLayer);
 
+        final float scale = getResources().getDisplayMetrics().density;
         //String text = "{\"data\":[[\"nama\",[100,200,300]],[\"saya\",[400,500,600]],[\"isman\",[700,800,900]]]}";
         String text = "{\"data\":[[\"menu1\",[100,200,300]],[\"menu2\",[400,500,600]],[\"menu3\",[700,800,900]],[\"menu4\",[400,500,600]],[\"menu5\",[700,800,900]],[\"menu6\",[400,500,600]],[\"menu7\",[700,800,900]],[\"menu8\",[400,500,600]],[\"menu9\",[700,800,900]],[\"menu10\",[400,500,600]],[\"menu11\",[700,800,900]],[\"menu12\",[400,500,600]],[\"menu13\",[700,800,900]],[\"menu14\",[400,500,600]],[\"menu15\",[700,800,900]],[\"menu16\",[400,500,600]],[\"menu17\",[700,800,900]],[\"menu18\",[400,500,600]],[\"menu19\",[700,800,900]],[\"menu20\",[400,500,600]],[\"menu21\",[700,800,900]],[\"menu22\",[400,500,600]],[\"menu23\",[700,800,900]],[\"menu24\",[400,500,600]],[\"menu25\",[700,800,900]],[\"menu26\",[400,500,600]],[\"menu27\",[700,800,900]],[\"menu28\",[400,500,600]],[\"menu29\",[700,800,900]],[\"menu30\",[400,500,600]],[\"menu31\",[700,800,900]],[\"menu32\",[400,500,600]],[\"menu33\",[700,800,900]]]}";
         JSONArray data = getData(text);
@@ -61,19 +63,14 @@ public class MainActivity extends AppCompatActivity {
         JSONArray hargaArray;
 
         for (int i = 0; i < nButton; i++) {
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
             LinearLayout layout = new LinearLayout(getApplicationContext());
+            LinearLayout.LayoutParams paramsW = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
 
             ConstraintLayout clayout = new ConstraintLayout(getApplicationContext());
+            ConstraintLayout.LayoutParams paramsCM = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
             clayout.setId(View.generateViewId());
             ConstraintSet bigSet = new ConstraintSet();
 
-
-            LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-//            ConstraintLayout.LayoutParams cParams = new ConstraintLayout.LayoutParams(0, 0);
-
-            layout.setOrientation(LinearLayout.HORIZONTAL);
-            layout.setLayoutParams(params);
             TextView menuNameTV = new TextView(getApplicationContext());
             Button buttonKurang = new Button(getApplicationContext());
             Button buttonTambah = new Button(getApplicationContext());
@@ -101,47 +98,42 @@ public class MainActivity extends AppCompatActivity {
             //menuNameTV has been declared above
             buttonKurang.setText("-");
             buttonTambah.setText("+");
-            subTotalTV.setText("0");
+            subTotalTV.setText("0 | 0");
 
-            buttonKurang.setLayoutParams(params1);
-            buttonTambah.setLayoutParams(params1);
+            buttonKurang.setLayoutParams(paramsW);
+            buttonTambah.setLayoutParams(paramsW);
             int subTotalViewId = View.generateViewId();
             subTotalIdList.add(subTotalViewId);
-
-            /*
-            layout.addView(menuNameTV);
-            layout.addView(buttonKurang);
-            layout.addView(buttonTambah);
-            layout.addView(subTotalTV);
-            subTotalTV.setId(subTotalViewId);
-            */
 
             menuNameTV.setId(View.generateViewId());
             buttonKurang.setId(View.generateViewId());
             buttonTambah.setId(View.generateViewId());
             subTotalTV.setId(subTotalViewId);
 
+            clayout.setLayoutParams(paramsCM);
+            if (i%2 == 1){ clayout.setBackground(new ColorDrawable(0xFFF0F0F0)); }
             clayout.addView(menuNameTV);
             clayout.addView(buttonKurang);
             clayout.addView(buttonTambah);
             clayout.addView(subTotalTV);
-//            clayout.setLayoutParams(cParams);
 
             bigSet.clone(clayout);
-            /*
-            bigSet.connect(menuNameTV.getId(), bigSet.START, bigSet.PARENT_ID, bigSet.START, 50);
-            bigSet.connect(menuNameTV.getId(), bigSet.END, buttonKurang.getId(), bigSet.START, 50);
-            bigSet.connect(buttonKurang.getId(), bigSet.END, buttonTambah.getId(), bigSet.START, 50);
-            bigSet.connect(buttonTambah.getId(), bigSet.END, subTotalTV.getId(), bigSet.START, 50);
-            bigSet.connect(subTotalTV.getId(), bigSet.END, bigSet.PARENT_ID, bigSet.END, 50);
-            */
+
             bigSet.constrainDefaultWidth(clayout.getId(), bigSet.MATCH_CONSTRAINT_SPREAD);
             bigSet.constrainDefaultHeight(clayout.getId(), bigSet.MATCH_CONSTRAINT_SPREAD);
-            bigSet.connect(menuNameTV.getId(), bigSet.START, bigSet.PARENT_ID, bigSet.START, 50);
-            bigSet.connect(buttonKurang.getId(), bigSet.START, menuNameTV.getId(), bigSet.END, 50);
-            bigSet.connect(buttonTambah.getId(), bigSet.START, buttonKurang.getId(), bigSet.END, 50);
-            bigSet.connect(subTotalTV.getId(), bigSet.START, buttonTambah.getId(), bigSet.END, 50);
-            bigSet.connect(subTotalTV.getId(), bigSet.END, bigSet.PARENT_ID, bigSet.END, 50);
+            bigSet.connect(menuNameTV.getId(), bigSet.START, bigSet.PARENT_ID, bigSet.START, (int) scale * 20);
+            bigSet.connect(buttonKurang.getId(), bigSet.START, menuNameTV.getId(), bigSet.END, 0);
+            bigSet.connect(buttonTambah.getId(), bigSet.START, buttonKurang.getId(), bigSet.END, (int) scale * 20);
+            bigSet.connect(subTotalTV.getId(), bigSet.START, buttonTambah.getId(), bigSet.END, 0);
+            bigSet.connect(subTotalTV.getId(), bigSet.END, bigSet.PARENT_ID, bigSet.END, (int) scale * 20);
+            bigSet.constrainWidth(menuNameTV.getId(), (int) (scale * 175));
+            bigSet.constrainWidth(buttonKurang.getId(), (int) (scale * 46));
+            bigSet.constrainWidth(buttonTambah.getId(), (int) (scale * 46));
+            bigSet.centerVertically(menuNameTV.getId(), clayout.getId());
+            bigSet.centerVertically(subTotalTV.getId(), clayout.getId());
+
+            bigSet.setHorizontalBias(menuNameTV.getId(), 0.0f);
+            bigSet.setHorizontalBias(subTotalTV.getId(), 1.0f);
 
             bigSet.applyTo(clayout);
             layout.addView(clayout);
@@ -232,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 TextView subTotalTV = findViewById(subTotalIdList.get(i));
                 try {
                     int hargaTemp = harga.get(currentMenu).getInt(priceIdx) * qty.get(currentMenu);
-                    subTotalTV.setText(Integer.toString(hargaTemp));
+                    subTotalTV.setText(Integer.toString(qty.get(currentMenu)) + " | " + Integer.toString(hargaTemp));
                     subTotal.put(currentMenu, hargaTemp);
                     calculateTotal(menu);
                 } catch (JSONException e){
