@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -53,6 +55,11 @@ public class MainActivity extends AppCompatActivity {
     static int priceIdx = 0;
     LinearLayout mainLayer;
 
+    //pricelist dynamiclist
+    final HashMap<String, JSONArray> harga = new HashMap<String, JSONArray>();
+    final HashMap<String, Integer> qty = new HashMap<String, Integer>();
+    final ArrayList<String> list = new ArrayList<String>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
         JSONArray data = getData(text);
         int nButton = data.length();
 
-        final ArrayList<String> list = new ArrayList<String>();
-
         try {
             for (int i=0; i< nButton; i++){
                 list.add(data.getJSONArray(i).getString(0));
@@ -74,11 +79,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {}
 
         System.out.println("DEBUG" + list);
-
-
-        //pricelist dynamiclist
-        final HashMap<String, JSONArray> harga = new HashMap<String, JSONArray>();
-        final HashMap<String, Integer> qty = new HashMap<String, Integer>();
 
         String menuTitle;
         JSONArray hargaArray;
@@ -250,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-
     }
 
         public static final int PERMISSION_BLUETOOTH = 1;
@@ -382,6 +381,23 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        public void clearContents(ArrayList<String> menu, HashMap<String, Integer> qty){
+            final EditText ETPemesan = (EditText) findViewById(R.id.gojekpemesan);
+            final EditText ETPin = (EditText) findViewById(R.id.gojekpin);
+            final EditText ETAntrian = (EditText) findViewById(R.id.gojekantrian);
+            ETPemesan.setText("");
+            ETPin.setText("");
+            ETAntrian.setText("");
+            for (int i = 0; i < menu.size(); i++){
+                String currentMenu = menu.get(i);
+                TextView subTotalTV = findViewById(subTotalIdList.get(i));
+                qty.put(currentMenu, 0);
+                subTotalTV.setText("0 | 0");
+                subTotal.put(currentMenu, 0);
+                calculateTotal(menu);
+            }
+        }
+
         public void calculateTotal(ArrayList<String> menu){
             TextView totalHargaTV = findViewById(R.id.totalharga);
             int totalTemp = 0;
@@ -402,5 +418,24 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println (e);
                 return new JSONArray();
             }
+        }
+
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            getMenuInflater().inflate(R.menu.main, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+
+            if (id == R.id.clear_setting) {
+                System.out.println("CLEARRRRRRRRRRRRRRR");
+                clearContents(list, qty);
+                return true;
+            }
+
+            return super.onOptionsItemSelected(item);
         }
     }
