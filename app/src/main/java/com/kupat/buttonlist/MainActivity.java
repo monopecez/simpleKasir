@@ -195,9 +195,9 @@ public class MainActivity extends AppCompatActivity {
         if (true) {
 
             Button btnPrint = (Button) findViewById(R.id.print);
-            EditText ETPemesan = (EditText) findViewById(R.id.gojekpemesan);
-            EditText ETPin = (EditText) findViewById(R.id.gojekpin);
-            EditText ETAntrian = (EditText) findViewById(R.id.gojekantrian);
+            final EditText ETPemesan = (EditText) findViewById(R.id.gojekpemesan);
+            final EditText ETPin = (EditText) findViewById(R.id.gojekpin);
+            final EditText ETAntrian = (EditText) findViewById(R.id.gojekantrian);
 
             final ConstraintLayout gojekDetail = (ConstraintLayout) findViewById(R.id.gojekDetail);
             final Switch gojekSwitch = (Switch) findViewById(R.id.gojekswitch);
@@ -207,8 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     printBluetooth();
-
-
+                    System.out.println(stringBuilder(list, qty, harga, ETPemesan.getText().toString(), ETPin.getText().toString(), ETAntrian.getText().toString()));
                 }
             });
 
@@ -224,6 +223,9 @@ public class MainActivity extends AppCompatActivity {
                         gojekDetail.setVisibility(ConstraintLayout.GONE);
                         priceIdx = 0;
                         refreshSubTotal(list, qty, harga);
+                        ETPemesan.setText("");
+                        ETPin.setText("");
+                        ETAntrian.setText("");
                     }
                 }
             });
@@ -240,6 +242,9 @@ public class MainActivity extends AppCompatActivity {
                         gojekDetail.setVisibility(ConstraintLayout.GONE);
                         priceIdx = 0;
                         refreshSubTotal(list, qty, harga);
+                        ETPemesan.setText("");
+                        ETPin.setText("");
+                        ETAntrian.setText("");
                     }
                 }
             });
@@ -269,8 +274,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-    @SuppressLint("SimpleDateFormat")
-    public void printIt(DeviceConnection printerConnection) {
+        @SuppressLint("SimpleDateFormat")
+        public void printIt(DeviceConnection printerConnection) {
+        System.out.println("PRINTER GOES BRRRRRRRRRRRRRRRRRRRRRR");
+        /*
         try {
             SimpleDateFormat format = new SimpleDateFormat("'on' yyyy-MM-dd 'at' HH:mm:ss");
             EscPosPrinter printer = new EscPosPrinter(printerConnection, 203, 48f, 32);
@@ -329,7 +336,36 @@ public class MainActivity extends AppCompatActivity {
                     .setMessage(e.getMessage())
                     .show();
         }
+        */
     }
+
+        public String stringBuilder(ArrayList<String> menu, HashMap<String, Integer> qty, HashMap<String, JSONArray> harga, String pemesan, String pin, String antrian){
+            String printedText = "";
+            printedText = printedText + "[L]\n[L]\n";
+            printedText = printedText + "HHHHHHHHAAAAAAAAAAAAALLLLLLLOOOOOOO\n";
+            printedText = printedText + "[L]\n[C]================[L]\n";
+            printedText = printedText + "[L]\n[L]Pemesan:[R]" + pemesan + "\n";
+            printedText = printedText + "[L]PIN    :[R]" + pin + "\n";
+            printedText = printedText + "[L]Antrian:[R]" + antrian + "\n";
+            printedText = printedText + "[L]\n[C]================[L]\n[L]\n";
+            int hargaTemp = 0;
+            int total = 0;
+            for (int i = 0; i < menu.size(); i++){
+                try{
+                    String currentMenu = menu.get(i);
+                    if (qty.get(currentMenu) != 0) {
+                        printedText = printedText + "[L]" + currentMenu + "\n";
+                        hargaTemp = harga.get(currentMenu).getInt(priceIdx) * qty.get(currentMenu);
+                        printedText = printedText + "[L] " + qty.get(currentMenu) + "x "  + harga.get(currentMenu).getInt(priceIdx) + "[R]" + hargaTemp + "\n";
+                        total = total + hargaTemp;
+                    }
+            } catch (JSONException e){
+                    System.out.println("SHRUG");
+                }
+            }
+            printedText = printedText + "[L]Total: [R]" + total;
+            return printedText;
+        }
 
         public void refreshSubTotal(ArrayList<String> menu, HashMap<String, Integer> qty, HashMap<String, JSONArray> harga){
             for (int i = 0; i < menu.size(); i++){
