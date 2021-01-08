@@ -1,7 +1,11 @@
 package com.kupat.buttonlist;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -14,16 +18,31 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.dantsu.escposprinter.EscPosPrinter;
+import com.dantsu.escposprinter.connection.DeviceConnection;
+import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections;
+import com.dantsu.escposprinter.exceptions.EscPosBarcodeException;
+import com.dantsu.escposprinter.exceptions.EscPosConnectionException;
+import com.dantsu.escposprinter.exceptions.EscPosEncodingException;
+import com.dantsu.escposprinter.exceptions.EscPosParserException;
+import com.dantsu.escposprinter.textparser.PrinterTextParserImg;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -175,13 +194,23 @@ public class MainActivity extends AppCompatActivity {
         //hidden header
         if (true) {
 
-            EditText gojekpemesan = (EditText) findViewById(R.id.gojekpemesan);
-            EditText gojekpin = (EditText) findViewById(R.id.gojekpin);
-            EditText gojekantrian = (EditText) findViewById(R.id.gojekantrian);
+            Button btnPrint = (Button) findViewById(R.id.print);
+            EditText ETPemesan = (EditText) findViewById(R.id.gojekpemesan);
+            EditText ETPin = (EditText) findViewById(R.id.gojekpin);
+            EditText ETAntrian = (EditText) findViewById(R.id.gojekantrian);
 
             final ConstraintLayout gojekDetail = (ConstraintLayout) findViewById(R.id.gojekDetail);
             final Switch gojekSwitch = (Switch) findViewById(R.id.gojekswitch);
             final Switch grabSwitch = (Switch) findViewById(R.id.grabswitch);
+
+            btnPrint.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    printBluetooth();
+
+
+                }
+            });
 
             gojekSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -215,8 +244,92 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+
     }
 
+        public static final int PERMISSION_BLUETOOTH = 1;
+
+        public void printBluetooth() {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH}, MainActivity.PERMISSION_BLUETOOTH);
+            } else {
+                this.printIt(BluetoothPrintersConnections.selectFirstPaired());
+            }
+        }
+
+        @Override
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                switch (requestCode) {
+                    case MainActivity.PERMISSION_BLUETOOTH:
+                        this.printBluetooth();
+                        break;
+                }
+            }
+        }
+
+    @SuppressLint("SimpleDateFormat")
+    public void printIt(DeviceConnection printerConnection) {
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("'on' yyyy-MM-dd 'at' HH:mm:ss");
+            EscPosPrinter printer = new EscPosPrinter(printerConnection, 203, 48f, 32);
+            printer
+                    .printFormattedText(
+                            "[C]<img>" + PrinterTextParserImg.bitmapToHexadecimalString(printer, this.getApplicationContext().getResources().getDrawableForDensity(R.drawable.logo, DisplayMetrics.DENSITY_MEDIUM)) + "</img>\n" +
+                                    "[L]\n" +
+                                    "[C]<u><font size='big'>ORDER N°045</font></u>\n" +
+                                    "[C]<font size='small'>" + format.format(new Date()) + "</font>\n" +
+                                    "[L]\n" +
+                                    "[C]================================\n" +
+                                    "[L]\n" +
+                                    "[L]<b>BEAUTIFUL SHIRT</b>[R]9.99e\n" +
+                                    "[L]  + Size : S\n" +
+                                    "[L]\n" +
+                                    "[L]<b>AWESOME HAT</b>[R]24.99e\n" +
+                                    "[L]  + Size : 57/58\n" +
+                                    "[L]\n" +
+                                    "[C]--------------------------------\n" +
+                                    "[R]TOTAL PRICE :[R]34.98e\n" +
+                                    "[R]TAX :[R]4.23e\n" +
+                                    "[L]\n" +
+                                    "[C]================================\n" +
+                                    "[L]\n" +
+                                    "[L]<font size='tall'>Customer :</font>\n" +
+                                    "[L]Raymond DUPONT\n" +
+                                    "[L]5 rue des girafes\n" +
+                                    "[L]31547 PERPETES\n" +
+                                    "[L]Tel : +33801201456\n" +
+                                    "[L]\n" +
+                                    "[C]<barcode type='ean13' height='10'>831254784551</barcode>\n" +
+                                    "[C]<qrcode size='20'>http://www.developpeur-web.dantsu.com/</qrcode>"
+                    );
+        } catch (EscPosConnectionException e) {
+            e.printStackTrace();
+            new AlertDialog.Builder(this)
+                    .setTitle("Broken connection")
+                    .setMessage(e.getMessage())
+                    .show();
+        } catch (EscPosParserException e) {
+            e.printStackTrace();
+            new AlertDialog.Builder(this)
+                    .setTitle("Invalid formatted text")
+                    .setMessage(e.getMessage())
+                    .show();
+        } catch (EscPosEncodingException e) {
+            e.printStackTrace();
+            new AlertDialog.Builder(this)
+                    .setTitle("Bad selected encoding")
+                    .setMessage(e.getMessage())
+                    .show();
+        } catch (EscPosBarcodeException e) {
+            e.printStackTrace();
+            new AlertDialog.Builder(this)
+                    .setTitle("Invalid barcode")
+                    .setMessage(e.getMessage())
+                    .show();
+        }
+    }
 
         public void refreshSubTotal(ArrayList<String> menu, HashMap<String, Integer> qty, HashMap<String, JSONArray> harga){
             for (int i = 0; i < menu.size(); i++){
