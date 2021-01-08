@@ -2,9 +2,12 @@ package com.kupat.buttonlist;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -59,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
     final HashMap<String, JSONArray> harga = new HashMap<String, JSONArray>();
     final HashMap<String, Integer> qty = new HashMap<String, Integer>();
     final ArrayList<String> list = new ArrayList<String>();
+
+    static Switch gojekSwitch;
+    static Switch grabSwitch;
+    static AlertDialog.Builder builder0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,14 +206,15 @@ public class MainActivity extends AppCompatActivity {
             final EditText ETAntrian = (EditText) findViewById(R.id.gojekantrian);
 
             final ConstraintLayout gojekDetail = (ConstraintLayout) findViewById(R.id.gojekDetail);
-            final Switch gojekSwitch = (Switch) findViewById(R.id.gojekswitch);
-            final Switch grabSwitch = (Switch) findViewById(R.id.grabswitch);
+            gojekSwitch = (Switch) findViewById(R.id.gojekswitch);
+            grabSwitch = (Switch) findViewById(R.id.grabswitch);
 
             btnPrint.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    printBluetooth();
-                    System.out.println(stringBuilder(list, qty, harga, ETPemesan.getText().toString(), ETPin.getText().toString(), ETAntrian.getText().toString()));
+                    //printBluetooth();
+                    //System.out.println(stringBuilder(list, qty, harga, ETPemesan.getText().toString(), ETPin.getText().toString(), ETAntrian.getText().toString()));
+                    dialogInputPIN();
                 }
             });
 
@@ -382,6 +389,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void clearContents(ArrayList<String> menu, HashMap<String, Integer> qty){
+            System.out.println("CLEARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
             final EditText ETPemesan = (EditText) findViewById(R.id.gojekpemesan);
             final EditText ETPin = (EditText) findViewById(R.id.gojekpin);
             final EditText ETAntrian = (EditText) findViewById(R.id.gojekantrian);
@@ -431,11 +439,55 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.clear_setting) {
-                System.out.println("CLEARRRRRRRRRRRRRRR");
                 clearContents(list, qty);
                 return true;
             }
 
             return super.onOptionsItemSelected(item);
         }
+
+    public void dialogInputPIN(){
+        TextView totalHargaTV = findViewById(R.id.totalharga);
+        final EditText ETPemesan = (EditText) findViewById(R.id.gojekpemesan);
+        final EditText ETAntrian = (EditText) findViewById(R.id.gojekantrian);
+        builder0 = new AlertDialog.Builder(this);
+        LinearLayout ll_alert_layout = new LinearLayout(this);
+        ll_alert_layout.setOrientation(LinearLayout.VERTICAL);
+        ll_alert_layout.setPadding(8,8,8,8);
+        final EditText name_input = new EditText(this);
+        final EditText pin_input = new EditText(this);
+        final EditText antrian_input = new EditText(this);
+        final TextView total = new TextView(this);
+        antrian_input.setText(ETAntrian.getText().toString());
+        antrian_input.setHint("Nomor antrian (opsional)");
+        name_input.setText(ETPemesan.getText().toString());
+        name_input.setHint("Nama pemesan (opsional)");
+        pin_input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        pin_input.setHint("PIN pesanan GOJEK/GRAB (opsional)");
+        String totalStr = totalHargaTV.getText().toString();
+        total.setText(totalStr);
+        ll_alert_layout.addView(name_input);
+        ll_alert_layout.addView(antrian_input);
+        ll_alert_layout.addView(pin_input);
+        //ll_alert_layout.addView(total);
+        builder0.setView(ll_alert_layout);
+        builder0.setMessage("Konfirmasi. Total: " + totalStr)
+                .setPositiveButton("PRINT", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        try {
+                            System.out.println(stringBuilder(list, qty, harga, name_input.getText().toString(), pin_input.getText().toString(), antrian_input.getText().toString()));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .setNegativeButton("TIDAK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //clearContent(0);
+                    }
+                });
+        builder0.show();
+
+    }
+
     }
