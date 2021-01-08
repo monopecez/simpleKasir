@@ -56,12 +56,13 @@ public class MainActivity extends AppCompatActivity {
 
         System.out.println("DEBUG" + list);
 
+
+        //pricelist dynamiclist
         final HashMap<String, JSONArray> harga = new HashMap<String, JSONArray>();
         final HashMap<String, Integer> qty = new HashMap<String, Integer>();
 
         String menuTitle;
         JSONArray hargaArray;
-
         for (int i = 0; i < nButton; i++) {
             LinearLayout layout = new LinearLayout(getApplicationContext());
             LinearLayout.LayoutParams paramsW = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -170,7 +171,6 @@ public class MainActivity extends AppCompatActivity {
 
             mainLayer.addView(layout);
             }
-
 
         //hidden header
         if (true) {
