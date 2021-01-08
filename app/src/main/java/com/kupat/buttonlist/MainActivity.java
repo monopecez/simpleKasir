@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     static Switch grabSwitch;
     static AlertDialog.Builder builder0;
 
+    static String preformattedText = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -211,8 +213,6 @@ public class MainActivity extends AppCompatActivity {
             btnPrint.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //printBluetooth();
-                    //System.out.println(stringBuilder(list, qty, harga, ETPemesan.getText().toString(), ETPin.getText().toString(), ETAntrian.getText().toString()));
                     dialogInputPIN();
                 }
             });
@@ -260,11 +260,12 @@ public class MainActivity extends AppCompatActivity {
 
         public static final int PERMISSION_BLUETOOTH = 1;
 
-        public void printBluetooth() {
+        public void printBluetooth(String preformattedText) {
+            System.out.println(preformattedText);
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH}, MainActivity.PERMISSION_BLUETOOTH);
             } else {
-                this.printIt(BluetoothPrintersConnections.selectFirstPaired());
+                this.printIt(BluetoothPrintersConnections.selectFirstPaired(), preformattedText);
             }
         }
 
@@ -273,16 +274,15 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 switch (requestCode) {
                     case MainActivity.PERMISSION_BLUETOOTH:
-                        this.printBluetooth();
+                        this.printBluetooth(preformattedText);
                         break;
                 }
             }
         }
 
         @SuppressLint("SimpleDateFormat")
-        public void printIt(DeviceConnection printerConnection) {
+        public void printIt(DeviceConnection printerConnection, String preformattedText) {
         System.out.println("PRINTER GOES BRRRRRRRRRRRRRRRRRRRRRR");
-        /*
         try {
             SimpleDateFormat format = new SimpleDateFormat("'on' yyyy-MM-dd 'at' HH:mm:ss");
             EscPosPrinter printer = new EscPosPrinter(printerConnection, 203, 48f, 32);
@@ -293,25 +293,7 @@ public class MainActivity extends AppCompatActivity {
                                     "[C]<u><font size='big'>ORDER N°045</font></u>\n" +
                                     "[C]<font size='small'>" + format.format(new Date()) + "</font>\n" +
                                     "[L]\n" +
-                                    "[C]================================\n" +
-                                    "[L]\n" +
-                                    "[L]<b>BEAUTIFUL SHIRT</b>[R]9.99e\n" +
-                                    "[L]  + Size : S\n" +
-                                    "[L]\n" +
-                                    "[L]<b>AWESOME HAT</b>[R]24.99e\n" +
-                                    "[L]  + Size : 57/58\n" +
-                                    "[L]\n" +
-                                    "[C]--------------------------------\n" +
-                                    "[R]TOTAL PRICE :[R]34.98e\n" +
-                                    "[R]TAX :[R]4.23e\n" +
-                                    "[L]\n" +
-                                    "[C]================================\n" +
-                                    "[L]\n" +
-                                    "[L]<font size='tall'>Customer :</font>\n" +
-                                    "[L]Raymond DUPONT\n" +
-                                    "[L]5 rue des girafes\n" +
-                                    "[L]31547 PERPETES\n" +
-                                    "[L]Tel : +33801201456\n" +
+                                    "[C]================================\n" + preformattedText +
                                     "[L]\n" +
                                     "[C]<barcode type='ean13' height='10'>831254784551</barcode>\n" +
                                     "[C]<qrcode size='20'>http://www.developpeur-web.dantsu.com/</qrcode>"
@@ -341,13 +323,13 @@ public class MainActivity extends AppCompatActivity {
                     .setMessage(e.getMessage())
                     .show();
         }
-        */
     }
+
 
         public String stringBuilder(ArrayList<String> menu, HashMap<String, Integer> qty, HashMap<String, JSONArray> harga, String pemesan, String pin, String antrian){
             String printedText = "";
             printedText = printedText + "[L]\n[L]\n";
-            printedText = printedText + "HHHHHHHHAAAAAAAAAAAAALLLLLLLOOOOOOO\n";
+            printedText = printedText + "[L]HHHHHHHHAAAAAAAAAAAAALLLLLLL\n";
             printedText = printedText + "[L]\n[C]================[L]\n";
             printedText = printedText + "[L]\n[L]Pemesan:[R]" + pemesan + "\n";
             printedText = printedText + "[L]PIN    :[R]" + pin + "\n";
@@ -474,7 +456,10 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("PRINT", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         try {
-                            System.out.println(stringBuilder(list, qty, harga, name_input.getText().toString(), pin_input.getText().toString(), antrian_input.getText().toString()));
+                            preformattedText = stringBuilder(list, qty, harga, name_input.getText().toString(), pin_input.getText().toString(), antrian_input.getText().toString());
+
+                            printBluetooth(preformattedText);
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
