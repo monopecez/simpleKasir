@@ -24,7 +24,7 @@ public class UpdateHargaActivity extends AppCompatActivity {
 
     final ArrayList<String> list = new ArrayList<String>();
     LinearLayout mainLayer;
-    
+
     @Override
     protected void onCreate(Bundle mSavedInstanceState) {
         super.onCreate(mSavedInstanceState);
@@ -34,8 +34,9 @@ public class UpdateHargaActivity extends AppCompatActivity {
         final float scale = getResources().getDisplayMetrics().density;
         SharedPreferences sharedPref = getSharedPreferences("pricesPreferences", Context.MODE_PRIVATE);
         String text = sharedPref.getString("data", "error");
+        final SharedPreferences.Editor editor = sharedPref.edit();
 
-        JSONArray data = getData(text);
+        final JSONArray data = getData(text);
         int nButton = data.length();
 
         try {
@@ -67,16 +68,13 @@ public class UpdateHargaActivity extends AppCompatActivity {
             try {
                 JSONArray innerData = data.getJSONArray(i);
                 menuTitle = innerData.getString(0);
-                hargaArray = innerData.getJSONArray(1);
                 menuNameTV.setText(menuTitle);
-
             } catch (JSONException e){
+                JSONArray innerData = new JSONArray();
                 System.out.println(e);
                 menuTitle = "ERROR";
-
             }
 
-            //menuNameTV has been declared above
             buttonEdit.setText("EDIT");
             buttonHapus.setText("HAPUS");
 
@@ -117,16 +115,29 @@ public class UpdateHargaActivity extends AppCompatActivity {
             buttonEdit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //TODO: ADD NEW PRICE DIALOG BOX
                     String item = list.get(idx);
-                    System.out.println("DEBUG: ITEM NAME IS " + item);
+                    System.out.println("EDITING: ITEM NAME IS " + item);
                 }
             });
 
             buttonHapus.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //TODO: ADD DELETE CONFIRMATION
                     String item = list.get(idx);
-                    System.out.println("DEBUG: ITEM NAME IS " + item);
+                    System.out.println("DELETING: ITEM NAME IS " + item);
+                    try{
+                        String temp;
+                        data.remove(idx);
+                        temp = "{\"data\":  "+data.toString() + "}";
+                        editor.putString("data", temp);
+                        editor.apply();
+                        finish();
+                        startActivity(getIntent());
+                    } catch (Exception e){
+                        System.out.println(e);
+                    }
                 }
             });
 
