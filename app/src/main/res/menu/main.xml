@@ -7,4 +7,11 @@
         android:title="Clear"
         android:visible="true"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/change_price"
+        android:orderInCategory="100"
+        android:title="Ganti Harga"
+        android:visible="true"
+        app:showAsAction="never" />
 </menu>

@@ -3,7 +3,10 @@ package com.kupat.buttonlist;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -75,7 +78,14 @@ public class MainActivity extends AppCompatActivity {
         mainLayer = (LinearLayout) findViewById(R.id.mainLayer);
 
         final float scale = getResources().getDisplayMetrics().density;
-        String text = "{\"data\": [[\"Kupat\",[18000,22500,20000]],[\"Kupat ½\",[14000,17500,15000]],[\"Tahu Toge\",[18000,22500,20000]],[\"Tahu Toge ½\",[14000,17500,15000]],[\"Kari Ayam \",[21000,26500,23000]],[\"Kari Ayam ½\",[16000,20000,17000]],[\"Kari Sapi\",[21000,26500,23000]],[\"Kari Sapi ½\",[16000,20000,17000]],[\"Telur\",[4000,5000,4500]],[\"Kerupuk Merah\",[1000,1250,2250]],[\"Kerupuk Aci\",[500,625,600]],[\"Emping\",[4000,5000,4500]],[\"Tahu ++\",[2500,3125,2250]],[\"Peyek\",[10000,12500,11000]],[\"Daging Sapi ++\",[8000,10000,7000]],[\"Daging Ayam ++\",[6000,7500,7000]],[\"Bumbu\",[7000,8750,7000]],[\"Saroja\",[9000,11250,10000]],[\"Kentang\",[10000,12500,10000]],[\"Lontong Porsi\",[6000,7500,7500]],[\"Seblak\",[6000,7500,7500]]]}";
+        SharedPreferences sharedPref = getSharedPreferences("pricesPreferences", Context.MODE_PRIVATE);
+
+        String text = "{\"data\": [[\"Kupat\",[18000,22500,20000]],[\"Kupat Kcl\",[14000,17500,15000]],[\"Tahu Toge\",[18000,22500,20000]],[\"Tahu Toge Kcl\",[14000,17500,15000]],[\"Kari Ayam \",[21000,26500,23000]],[\"Kari Ayam Kcl\",[16000,20000,17000]],[\"Kari Sapi\",[21000,26500,23000]],[\"Kari Sapi Kcl\",[16000,20000,17000]],[\"Telur\",[4000,5000,4500]],[\"Kerupuk Merah\",[1000,1250,2250]],[\"Kerupuk Aci\",[500,625,600]],[\"Emping\",[4000,5000,4500]],[\"Tahu ++\",[2500,3125,2250]],[\"Peyek\",[10000,12500,11000]],[\"Daging Sapi ++\",[8000,10000,7000]],[\"Daging Ayam ++\",[6000,7500,7000]],[\"Bumbu\",[7000,8750,7000]],[\"Saroja\",[9000,11250,10000]],[\"Kentang\",[10000,12500,10000]],[\"Lontong Porsi\",[6000,7500,7500]],[\"Seblak\",[6000,7500,7500]]]}";
+        text = sharedPref.getString("data", text);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("data", text);
+        editor.apply();
+
         JSONArray data = getData(text);
         int nButton = data.length();
 
@@ -422,6 +432,11 @@ public class MainActivity extends AppCompatActivity {
             if (id == R.id.clear_setting) {
                 clearContents(list, qty);
                 return true;
+            } else if (id == R.id.change_price){
+                Intent updateHargaIntent = new Intent(MainActivity.this,
+                        UpdateHargaActivity.class);
+                startActivity(updateHargaIntent);
+                finish();
             }
 
             return super.onOptionsItemSelected(item);
