@@ -1,6 +1,7 @@
 package com.kupat.buttonlist;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -18,11 +19,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class UpdateHargaActivity extends AppCompatActivity {
 
 
     final ArrayList<String> list = new ArrayList<String>();
+    final ArrayList<Integer> toBeRemoved = new ArrayList<>();
+    final ArrayList<Integer> linearLayoutList = new ArrayList<>();
+
     LinearLayout mainLayer;
 
     @Override
@@ -30,6 +36,8 @@ public class UpdateHargaActivity extends AppCompatActivity {
         super.onCreate(mSavedInstanceState);
         setContentView(R.layout.update_harga);
         mainLayer = (LinearLayout) findViewById(R.id.mainLayer);
+
+        Button buttonSave = (Button) findViewById(R.id.save);
 
         final float scale = getResources().getDisplayMetrics().density;
         SharedPreferences sharedPref = getSharedPreferences("pricesPreferences", Context.MODE_PRIVATE);
@@ -63,7 +71,6 @@ public class UpdateHargaActivity extends AppCompatActivity {
             TextView menuNameTV = new TextView(getApplicationContext());
             Button buttonEdit = new Button(getApplicationContext());
             Button buttonHapus = new Button(getApplicationContext());
-
 
             try {
                 JSONArray innerData = data.getJSONArray(i);
@@ -109,13 +116,16 @@ public class UpdateHargaActivity extends AppCompatActivity {
 
             bigSet.applyTo(clayout);
             layout.addView(clayout);
+            int llid = View.generateViewId();
+            layout.setId(llid);
+            linearLayoutList.add(llid);
 
             final int idx = i;
 
             buttonEdit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: ADD NEW PRICE DIALOG BOX
+                    //@TODO: ADD NEW PRICE DIALOG BOX
                     String item = list.get(idx);
                     System.out.println("EDITING: ITEM NAME IS " + item);
                 }
@@ -124,17 +134,13 @@ public class UpdateHargaActivity extends AppCompatActivity {
             buttonHapus.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: ADD DELETE CONFIRMATION
+                    //@TODO: ADD DELETE CONFIRMATION
                     String item = list.get(idx);
                     System.out.println("DELETING: ITEM NAME IS " + item);
                     try{
-                        String temp;
-                        data.remove(idx);
-                        temp = "{\"data\":  "+data.toString() + "}";
-                        editor.putString("data", temp);
-                        editor.apply();
-                        finish();
-                        startActivity(getIntent());
+                        toBeRemoved.add(idx);
+                        LinearLayout ll = findViewById(linearLayoutList.get(idx));
+                        ll.setVisibility(LinearLayout.GONE);
                     } catch (Exception e){
                         System.out.println(e);
                     }
@@ -142,11 +148,55 @@ public class UpdateHargaActivity extends AppCompatActivity {
             });
 
             mainLayer.addView(layout);
+
         }
 
+        buttonSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println(toBeRemoved.toString());
+                Collections.sort(toBeRemoved);
+                Collections.reverse(toBeRemoved);
+                System.out.println(toBeRemoved.toString());
+                String temp;
+                for(int idx : toBeRemoved){
+                    data.remove(idx);
+                }
+                temp = "{\"data\":  "+data.toString() + "}";
+                editor.putString("data", temp);
+                editor.apply();
+                Intent newIntent = new Intent(UpdateHargaActivity.this,
+                        MainActivity.class);
+                startActivity(newIntent);
+                //@TODO: fix exception on finish, reopen/recreate main activity
+                finish();
+
+            }
+        });
 
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
