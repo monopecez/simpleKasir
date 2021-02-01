@@ -167,9 +167,12 @@ public class UpdateHargaActivity extends AppCompatActivity {
                 editor.apply();
                 Intent newIntent = new Intent(UpdateHargaActivity.this,
                         MainActivity.class);
+                newIntent.putExtra("recreate", true);
+                newIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(newIntent);
+
                 //@TODO: fix exception on finish, reopen/recreate main activity
-                finish();
+                finishAffinity();
 
             }
         });

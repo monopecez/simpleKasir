@@ -73,6 +73,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (getIntent().getBooleanExtra("recreate", false) == true) {
+            subTotalIdList.clear();
+            subTotal.clear();
+            harga.clear();
+            qty.clear();
+            list.clear();
+
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainLayer = (LinearLayout) findViewById(R.id.mainLayer);
@@ -80,8 +88,8 @@ public class MainActivity extends AppCompatActivity {
         final float scale = getResources().getDisplayMetrics().density;
         SharedPreferences sharedPref = getSharedPreferences("pricesPreferences", Context.MODE_PRIVATE);
 
-//        String text = "{\"data\": [[\"Kupat\",[18000,22500,20000]],[\"Kupat Kcl\",[14000,17500,15000]],[\"Tahu Toge\",[18000,22500,20000]],[\"Tahu Toge Kcl\",[14000,17500,15000]],[\"Kari Ayam \",[21000,26500,23000]],[\"Kari Ayam Kcl\",[16000,20000,17000]],[\"Kari Sapi\",[21000,26500,23000]],[\"Kari Sapi Kcl\",[16000,20000,17000]],[\"Telur\",[4000,5000,4500]],[\"Kerupuk Merah\",[1000,1250,2250]],[\"Kerupuk Aci\",[500,625,600]],[\"Emping\",[4000,5000,4500]],[\"Tahu ++\",[2500,3125,2250]],[\"Peyek\",[10000,12500,11000]],[\"Daging Sapi ++\",[8000,10000,7000]],[\"Daging Ayam ++\",[6000,7500,7000]],[\"Bumbu\",[7000,8750,7000]],[\"Saroja\",[9000,11250,10000]],[\"Kentang\",[10000,12500,10000]],[\"Lontong Porsi\",[6000,7500,7500]],[\"Seblak\",[6000,7500,7500]]]}";
-        String text = "{\"data\": [[\"Kupat\",[18000,22500,20000]],[\"Kupat Kcl\",[14000,17500,15000]],[\"Tahu Toge\",[18000,22500,20000]],[\"Tahu Toge Kcl\",[14000,17500,15000]],[\"Kari Ayam \",[21000,26500,23000]],[\"Kari Ayam Kcl\",[16000,20000,17000]],[\"Kari Sapi\",[21000,26500,23000]]]}";
+        String text = "{\"data\": [[\"Kupat\",[18000,22500,20000]],[\"Kupat Kcl\",[14000,17500,15000]],[\"Tahu Toge\",[18000,22500,20000]],[\"Tahu Toge Kcl\",[14000,17500,15000]],[\"Kari Ayam \",[21000,26500,23000]],[\"Kari Ayam Kcl\",[16000,20000,17000]],[\"Kari Sapi\",[21000,26500,23000]],[\"Kari Sapi Kcl\",[16000,20000,17000]],[\"Telur\",[4000,5000,4500]],[\"Kerupuk Merah\",[1000,1250,2250]],[\"Kerupuk Aci\",[500,625,600]],[\"Emping\",[4000,5000,4500]],[\"Tahu ++\",[2500,3125,2250]],[\"Peyek\",[10000,12500,11000]],[\"Daging Sapi ++\",[8000,10000,7000]],[\"Daging Ayam ++\",[6000,7500,7000]],[\"Bumbu\",[7000,8750,7000]],[\"Saroja\",[9000,11250,10000]],[\"Kentang\",[10000,12500,10000]],[\"Lontong Porsi\",[6000,7500,7500]],[\"Seblak\",[6000,7500,7500]]]}";
+//        String text = "{\"data\": [[\"Kupat\",[18000,22500,20000]],[\"Kupat Kcl\",[14000,17500,15000]],[\"Tahu Toge\",[18000,22500,20000]],[\"Tahu Toge Kcl\",[14000,17500,15000]],[\"Kari Ayam \",[21000,26500,23000]],[\"Kari Ayam Kcl\",[16000,20000,17000]],[\"Kari Sapi\",[21000,26500,23000]]]}";
         text = sharedPref.getString("data", text);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("data", text);
@@ -147,6 +155,11 @@ public class MainActivity extends AppCompatActivity {
             buttonKurang.setId(View.generateViewId());
             buttonTambah.setId(View.generateViewId());
             subTotalTV.setId(subTotalViewId);
+
+            System.out.println("ID: "+ subTotalTV.getId());
+            System.out.println("ID: "+ menuNameTV.getId());
+            System.out.println("ID: "+ buttonKurang.getId());
+            System.out.println("ID: "+ buttonTambah.getId());
 
             clayout.setLayoutParams(paramsCM);
             if (i%2 == 1){ clayout.setBackground(new ColorDrawable(0xFFF0F0F0)); }
@@ -265,6 +278,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
+
+            System.out.println("ID: " + subTotalIdList.toString());
         }
 
     }
@@ -437,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent updateHargaIntent = new Intent(MainActivity.this,
                         UpdateHargaActivity.class);
                 startActivity(updateHargaIntent);
-                finish();
+                this.finish();
             }
 
             return super.onOptionsItemSelected(item);
