@@ -82,7 +82,7 @@ public class UpdateHargaActivity extends AppCompatActivity {
                 menuTitle = "ERROR";
             }
 
-            buttonEdit.setText("EDIT");
+            buttonEdit.setText("GANTI");
             buttonHapus.setText("HAPUS");
 
             buttonEdit.setLayoutParams(paramsW);
@@ -103,12 +103,13 @@ public class UpdateHargaActivity extends AppCompatActivity {
             bigSet.constrainDefaultWidth(clayout.getId(), bigSet.MATCH_CONSTRAINT_SPREAD);
             bigSet.constrainDefaultHeight(clayout.getId(), bigSet.MATCH_CONSTRAINT_SPREAD);
             bigSet.connect(menuNameTV.getId(), bigSet.START, bigSet.PARENT_ID, bigSet.START, (int) scale * 20);
-            bigSet.connect(buttonEdit.getId(), bigSet.START, menuNameTV.getId(), bigSet.END, 0);
-            bigSet.connect(buttonHapus.getId(), bigSet.START, buttonEdit.getId(), bigSet.END, (int) scale * 20);
             bigSet.connect(buttonHapus.getId(), bigSet.END, bigSet.PARENT_ID, bigSet.END, (int) scale * 20);
+            bigSet.connect(buttonEdit.getId(), bigSet.END, buttonHapus.getId(), bigSet.START, 0);
+            /*
             bigSet.constrainWidth(menuNameTV.getId(), (int) (scale * 175));
             bigSet.constrainWidth(buttonEdit.getId(), (int) (scale * 110));
             bigSet.constrainWidth(buttonHapus.getId(), (int) (scale * 110));
+            */
             bigSet.centerVertically(menuNameTV.getId(), clayout.getId());
 
             bigSet.setHorizontalBias(menuNameTV.getId(), 0.0f);
@@ -179,27 +180,6 @@ public class UpdateHargaActivity extends AppCompatActivity {
 
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
