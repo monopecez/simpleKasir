@@ -1,12 +1,17 @@
 package com.kupat.buttonlist;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -25,7 +30,9 @@ import java.util.Comparator;
 public class UpdateHargaActivity extends AppCompatActivity {
 
 
-    final ArrayList<String> list = new ArrayList<String>();
+    static AlertDialog.Builder builder0;
+    final ArrayList<String> listMenu = new ArrayList<String>();
+    final ArrayList<JSONArray> listHarga = new ArrayList<>();
     final ArrayList<Integer> toBeRemoved = new ArrayList<>();
     final ArrayList<Integer> linearLayoutList = new ArrayList<>();
 
@@ -38,6 +45,7 @@ public class UpdateHargaActivity extends AppCompatActivity {
         mainLayer = (LinearLayout) findViewById(R.id.mainLayer);
 
         Button buttonSave = (Button) findViewById(R.id.save);
+        Button buttonAdd = (Button) findViewById(R.id.add);
 
         final float scale = getResources().getDisplayMetrics().density;
         SharedPreferences sharedPref = getSharedPreferences("pricesPreferences", Context.MODE_PRIVATE);
@@ -47,13 +55,14 @@ public class UpdateHargaActivity extends AppCompatActivity {
         final JSONArray data = getData(text);
         int nButton = data.length();
 
+        System.out.println("RAW DATA: " + data.toString());
+
         try {
             for (int i=0; i< nButton; i++){
-                list.add(data.getJSONArray(i).getString(0));
+                listMenu.add(data.getJSONArray(i).getString(0));
+                listHarga.add(data.getJSONArray(i).getJSONArray(1));
             }
         } catch (JSONException e) {}
-
-
 
 
         String menuTitle;
@@ -127,8 +136,11 @@ public class UpdateHargaActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //@TODO: ADD NEW PRICE DIALOG BOX
-                    String item = list.get(idx);
-                    System.out.println("EDITING: ITEM NAME IS " + item);
+                    String item = listMenu.get(idx);
+                    Log.v("text", "EDITING: ITEM NAME IS " + item);
+                    System.out.println(item);
+                    System.out.println(listHarga.get(idx).toString());
+                    dialogGantiHarga(item, listHarga.get(idx), idx, data);
                 }
             });
 
@@ -136,8 +148,8 @@ public class UpdateHargaActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //@TODO: ADD DELETE CONFIRMATION
-                    String item = list.get(idx);
-                    System.out.println("DELETING: ITEM NAME IS " + item);
+                    String item = listMenu.get(idx);
+                    Log.v("text", "DELETING: ITEM NAME IS " + item);
                     try{
                         toBeRemoved.add(idx);
                         LinearLayout ll = findViewById(linearLayoutList.get(idx));
@@ -151,6 +163,14 @@ public class UpdateHargaActivity extends AppCompatActivity {
             mainLayer.addView(layout);
 
         }
+
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("ADDING NEW ITEM");
+                dialogTambahHarga();
+            }
+        });
 
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,6 +213,119 @@ public class UpdateHargaActivity extends AppCompatActivity {
             System.out.println (e);
             return new JSONArray();
         }
+    }
+
+    public JSONArray dialogGantiHarga(String namaMenu, JSONArray arrayHarga, int idx, JSONArray datax){
+        int hargaNormal = 0;
+        int hargaGojek = 0;
+        int hargaGrab = 0;
+
+        try {
+            hargaNormal = arrayHarga.getInt(0);
+            hargaGojek = arrayHarga.getInt(1);
+            hargaGrab = arrayHarga.getInt(2);
+
+        } catch (JSONException e){
+            System.out.println(e);
+        }
+
+        builder0 = new AlertDialog.Builder(this);
+        LinearLayout ll_alert_layout = new LinearLayout(this);
+        ll_alert_layout.setOrientation(LinearLayout.VERTICAL);
+        ll_alert_layout.setPadding(8,8,8,8);
+        final EditText menuET = new EditText(this);
+
+        final TextView normalTV = new TextView(this);
+        normalTV.setText("Harga normal");
+        final EditText normalET = new EditText(this);
+        normalET.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        final TextView gojekTV = new TextView(this);
+        gojekTV.setText("Harga Gofood");
+        final EditText gojekET = new EditText(this);
+        gojekET.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        final TextView grabTV = new TextView(this);
+        grabTV.setText("Harga GrabFood");
+        final EditText grabET = new EditText(this);
+        grabET.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        menuET.setText(namaMenu);
+        normalET.setText(Integer.toString(hargaNormal));
+        gojekET.setText(Integer.toString(hargaGojek));
+        grabET.setText(Integer.toString(hargaGrab));
+        ll_alert_layout.addView(menuET);
+        ll_alert_layout.addView(normalTV);
+        ll_alert_layout.addView(normalET);
+        ll_alert_layout.addView(gojekTV);
+        ll_alert_layout.addView(gojekET);
+        ll_alert_layout.addView(grabTV);
+        ll_alert_layout.addView(grabET);
+        builder0.setView(ll_alert_layout);
+        builder0.setMessage("Ganti harga")
+                .setPositiveButton("Simpan", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        try {
+                            System.out.println("SAVING");
+                            //TODO:UPDATE JSON HARGA
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .setNegativeButton("Buang", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //clearContent(0);
+                    }
+                });
+        builder0.show();
+        return datax;
+    }
+
+    public void dialogTambahHarga(){
+        builder0 = new AlertDialog.Builder(this);
+        LinearLayout ll_alert_layout = new LinearLayout(this);
+        ll_alert_layout.setOrientation(LinearLayout.VERTICAL);
+        ll_alert_layout.setPadding(8,8,8,8);
+        final EditText menuTV = new EditText(this);
+
+        final EditText normalET = new EditText(this);
+        normalET.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+
+        final EditText gojekET = new EditText(this);
+        gojekET.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+
+        final EditText grabET = new EditText(this);
+        grabET.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        menuTV.setHint("Nama Menu");
+        normalET.setHint("Harga Offline");
+        gojekET.setHint("Harga Gofood");
+        grabET.setHint("Harga Grab");
+        ll_alert_layout.addView(menuTV);
+        ll_alert_layout.addView(normalET);
+        ll_alert_layout.addView(gojekET);
+        ll_alert_layout.addView(grabET);
+        builder0.setView(ll_alert_layout);
+        builder0.setMessage("Tambah Menu")
+                .setPositiveButton("Tambah", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        try {
+                            System.out.println("SAVING");
+                            //TODO: "ADD HARGA JSON"
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .setNegativeButton("Buang", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //clearContent(0);
+                    }
+                });
+        builder0.show();
     }
 
 }
